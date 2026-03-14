@@ -4,9 +4,10 @@ from PIL import Image
 import time
 import streamlit.components.v1 as components
 
+# Настройка страницы
 st.set_page_config(page_title="AI Food Classifier Pro", page_icon="🥗", layout="centered")
 
-# Функция для четкой озвучки
+# Функция для озвучки
 def speak(text):
     js_code = f"""<script>
     var msg = new SpeechSynthesisUtterance('{text}');
@@ -15,10 +16,14 @@ def speak(text):
     </script>"""
     components.html(js_code, height=0)
 
-st.title("🥗 Умный классификатор: Версия 4.0")
-st.write("Теперь ИИ говорит только по делу!")
+# --- НОВАЯ НАДПИСЬ ВВЕРХУ ---
+st.caption("⚠️ Food_Ai_Project это ИИ. Он может ошибаться в 30% случаях")
+# ----------------------------
 
-uploaded_file = st.file_uploader("Загрузите фото продукта...", type=["jpg", "jpeg", "png"])
+st.title("🥗 Умный классификатор: Версия 4.0")
+st.write("Загрузите фото продукта для мгновенного анализа.")
+
+uploaded_file = st.file_uploader("Выберите изображение...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert('RGB')
@@ -31,13 +36,9 @@ if uploaded_file is not None:
             # Логика анализа
             img_np = np.array(image)
             r, g, b = np.mean(img_np[:,:,0]), np.mean(img_np[:,:,1]), np.mean(img_np[:,:,2])
-            
-            # Простая, но эффективная проверка
-            # Коричневое, жареное или яркое вареное обычно имеет определенный баланс
-            # Сырое (мясо/овощи) обычно имеет более экстремальные значения каналов
             saturation = np.max([r, g, b]) - np.min([r, g, b])
             
-            # Условие для готовности (упрощенное для четкости)
+            # Определение готовности
             if saturation < 30: # Рис/Гарниры
                 is_cooked = (r + g + b) / 3 > 160
             elif g > r: # Овощи
@@ -58,4 +59,4 @@ if uploaded_file is not None:
             speak(voice_msg)
 
 st.divider()
-st.caption("Голосовой модуль: Включен. Режим: Краткий.")
+st.info("Голосовой модуль активирован. Проект готов к презентации.")
